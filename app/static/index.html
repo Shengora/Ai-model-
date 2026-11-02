@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe Coding Assistant</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Vibe Coding Assistant</h1>
+      <p>Local, private RAG assistant powered by Ollama and Qdrant.</p>
+    </header>
+
+    <!-- Global Error Banner -->
+    <div id="error-banner" class="error-banner">
+      <span id="error-message"></span>
+      <button class="error-close" onclick="hideError()">×</button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="tab-ask">Ask</button>
+      <button class="tab-btn" data-tab="tab-task">Task Prompt</button>
+      <button class="tab-btn" data-tab="tab-review">Review Diff</button>
+      <button class="tab-btn" data-tab="tab-error">Explain Error</button>
+      <button class="tab-btn" data-tab="tab-knowledge">Knowledge</button>
+    </nav>
+
+    <!-- TAB 1: ASK -->
+    <section id="tab-ask" class="tab-content active">
+      <div class="card">
+        <form id="form-ask">
+          <div class="form-group">
+            <label for="ask-question">Ask a question about your project codebase/docs:</label>
+            <textarea id="ask-question" rows="4" placeholder="e.g. How does authentication work in this service?" required></textarea>
+          </div>
+          <button type="submit" class="btn" id="btn-ask">
+            <span class="btn-text">Submit</span>
+          </button>
+        </form>
+
+        <div id="result-ask" class="result-box">
+          <div class="result-header">
+            <h3>Response</h3>
+            <button class="btn btn-secondary" onclick="copyResult('body-ask')">Copy</button>
+          </div>
+          <div id="body-ask" class="result-body"></div>
+          <details id="sources-ask" class="sources-details">
+            <summary>Retrieved Sources (<span class="sources-count">0</span>)</summary>
+            <ul class="sources-list"></ul>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: TASK PROMPT -->
+    <section id="tab-task" class="tab-content">
+      <div class="card">
+        <form id="form-task">
+          <div class="form-group">
+            <label for="task-goal">High-level Goal / Feature Description:</label>
+            <textarea id="task-goal" rows="4" placeholder="e.g. Add rate-limiting middleware to prevent API abuse." required></textarea>
+          </div>
+          <button type="submit" class="btn" id="btn-task">
+            <span class="btn-text">Generate Task Prompt</span>
+          </button>
+        </form>
+
+        <div id="result-task" class="result-box">
+          <div class="result-header">
+            <h3>Generated Task Prompt</h3>
+            <button class="btn btn-secondary" onclick="copyResult('body-task')">Copy</button>
+          </div>
+          <div id="body-task" class="result-body"></div>
+          <details id="sources-task" class="sources-details">
+            <summary>Retrieved Sources (<span class="sources-count">0</span>)</summary>
+            <ul class="sources-list"></ul>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: REVIEW DIFF -->
+    <section id="tab-review" class="tab-content">
+      <div class="card">
+        <form id="form-review">
+          <div class="form-group">
+            <label for="review-task">Task Description (optional):</label>
+            <input type="text" id="review-task" placeholder="e.g. Implement user logout and session cleanup">
+          </div>
+          <div class="form-group">
+            <label for="review-diff">Git Diff:</label>
+            <textarea id="review-diff" rows="8" placeholder="Paste git diff here..." required></textarea>
+          </div>
+          <button type="submit" class="btn" id="btn-review">
+            <span class="btn-text">Review Diff</span>
+          </button>
+        </form>
+
+        <div id="result-review" class="result-box">
+          <div class="result-header">
+            <h3>Diff Review</h3>
+            <button class="btn btn-secondary" onclick="copyResult('body-review')">Copy</button>
+          </div>
+          <div id="body-review" class="result-body"></div>
+          <details id="sources-review" class="sources-details">
+            <summary>Retrieved Sources (<span class="sources-count">0</span>)</summary>
+            <ul class="sources-list"></ul>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: EXPLAIN ERROR -->
+    <section id="tab-error" class="tab-content">
+      <div class="card">
+        <form id="form-error">
+          <div class="form-group">
+            <label for="error-log">Error Log / Stack Trace:</label>
+            <textarea id="error-log" rows="6" placeholder="Paste error traceback or log output here..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="error-extra">Extra Context (optional):</label>
+            <input type="text" id="error-extra" placeholder="e.g. Occurred after running alembic upgrade on Postgres 15">
+          </div>
+          <button type="submit" class="btn" id="btn-error">
+            <span class="btn-text">Explain Error</span>
+          </button>
+        </form>
+
+        <div id="result-error" class="result-box">
+          <div class="result-header">
+            <h3>Analysis & Fixes</h3>
+            <button class="btn btn-secondary" onclick="copyResult('body-error')">Copy</button>
+          </div>
+          <div id="body-error" class="result-body"></div>
+          <details id="sources-error" class="sources-details">
+            <summary>Retrieved Sources (<span class="sources-count">0</span>)</summary>
+            <ul class="sources-list"></ul>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: KNOWLEDGE -->
+    <section id="tab-knowledge" class="tab-content">
+      <div class="card">
+        <h3>Knowledge Base Documents</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+          Upload project documentation (.md or .txt, max 1MB per file) to index into Qdrant.
+        </p>
+
+        <form id="form-upload" class="file-upload-section">
+          <input type="file" id="upload-files" multiple accept=".md,.txt" required>
+          <button type="submit" class="btn" id="btn-upload">Upload & Index</button>
+        </form>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Document Path</th>
+                <th>Chunks</th>
+                <th>Last Updated</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="knowledge-table-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted);">Loading indexed documents...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

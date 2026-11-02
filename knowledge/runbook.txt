@@ -1,0 +1,12 @@
+# Deployment and Runbook
+
+## Local Development
+To run the full stack locally:
+1. Copy .env.example to .env
+2. Run docker compose up -d
+3. Run migrations using alembic upgrade head
+
+## Troubleshooting
+- If database connection fails, verify POSTGRES_PORT=5432 and credentials in .env.
+- Check container logs using `docker logs -f app`.
+- Health check endpoints exist at /health for all core services.
