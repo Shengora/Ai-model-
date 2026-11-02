@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Coding Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="error-banner" class="hidden"></div>
+
+    <header>
+        <h1>Vibe Coding Assistant</h1>
+        <div class="header-actions">
+            <button id="theme-toggle">Toggle Theme</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Knowledge Base</h2>
+            <div id="kb-list" class="kb-list">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="upload-section">
+                <h3>Upload Document (.md/.txt)</h3>
+                <input type="file" id="file-upload" accept=".md,.txt">
+                <button id="upload-btn">Upload & Ingest</button>
+            </div>
+
+            <div class="status-section">
+                <h3>System Status</h3>
+                <div id="health-status">Checking...</div>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="ask">Ask</button>
+                <button class="tab-btn" data-tab="task-prompt">Task Prompt</button>
+                <button class="tab-btn" data-tab="review-diff">Review Diff</button>
+                <button class="tab-btn" data-tab="explain-error">Explain Error</button>
+            </div>
+
+            <!-- Ask Tab -->
+            <div id="tab-ask" class="tab-content active">
+                <div class="chat-history" id="chat-history"></div>
+                <div class="input-group">
+                    <label for="ask-input">Question</label>
+                    <textarea id="ask-input" rows="4" placeholder="Ask a question about your project..."></textarea>
+                </div>
+                <button id="ask-submit" class="submit-btn">Ask</button>
+            </div>
+
+            <!-- Task Prompt Tab -->
+            <div id="tab-task-prompt" class="tab-content">
+                <div class="input-group">
+                    <label for="task-input">Feature Goal</label>
+                    <textarea id="task-input" rows="4" placeholder="Describe the feature you want to build..."></textarea>
+                </div>
+                <button id="task-submit" class="submit-btn">Generate Task Prompt</button>
+                <div class="result-area hidden" id="task-result-area">
+                    <div class="result-header">
+                        <h3>Result</h3>
+                        <button class="copy-btn" data-target="task-output">Copy</button>
+                    </div>
+                    <div class="output" id="task-output"></div>
+                    <details class="sources">
+                        <summary>Sources Used</summary>
+                        <ul id="task-sources"></ul>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Review Diff Tab -->
+            <div id="tab-review-diff" class="tab-content">
+                <div class="input-group">
+                    <label for="review-diff-input">Git Diff</label>
+                    <textarea id="review-diff-input" rows="8" placeholder="Paste your git diff here..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="review-task-input">Task Description (Optional)</label>
+                    <textarea id="review-task-input" rows="3" placeholder="What was this diff supposed to accomplish?"></textarea>
+                </div>
+                <button id="review-submit" class="submit-btn">Review Diff</button>
+                <div class="result-area hidden" id="review-result-area">
+                    <div class="result-header">
+                        <h3>Result</h3>
+                        <button class="copy-btn" data-target="review-output">Copy</button>
+                    </div>
+                    <div class="output" id="review-output"></div>
+                    <details class="sources">
+                        <summary>Sources Used</summary>
+                        <ul id="review-sources"></ul>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Explain Error Tab -->
+            <div id="tab-explain-error" class="tab-content">
+                <div class="input-group">
+                    <label for="error-log-input">Error Log</label>
+                    <textarea id="error-log-input" rows="8" placeholder="Paste the error log or stack trace here..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="error-context-input">Extra Context (Optional)</label>
+                    <textarea id="error-context-input" rows="3" placeholder="Any recent changes or context?"></textarea>
+                </div>
+                <button id="error-submit" class="submit-btn">Explain Error</button>
+                <div class="result-area hidden" id="error-result-area">
+                    <div class="result-header">
+                        <h3>Result</h3>
+                        <button class="copy-btn" data-target="error-output">Copy</button>
+                    </div>
+                    <div class="output" id="error-output"></div>
+                    <details class="sources">
+                        <summary>Sources Used</summary>
+                        <ul id="error-sources"></ul>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Global Loading overlay for active tab -->
+            <div id="loading" class="loading hidden">Processing...</div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
