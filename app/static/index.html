@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe Coding Assistant</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-brand">
+        <h1>Vibe Coding Assistant</h1>
+        <p class="tagline">Local RAG over your project documentation</p>
+      </div>
+      <div class="system-status" id="system-status">
+        <span class="status-indicator" id="status-dot"></span>
+        <span id="status-text">Checking health...</span>
+      </div>
+    </header>
+
+    <!-- Error Banner -->
+    <div id="error-banner" class="banner hidden">
+      <span id="error-message"></span>
+      <button class="banner-close" onclick="dismissError()">&times;</button>
+    </div>
+
+    <!-- Main Layout -->
+    <main class="main-layout">
+      <!-- Assistant Workspace -->
+      <section class="assistant-section">
+        <!-- Tabs -->
+        <nav class="tabs-nav" role="tablist">
+          <button class="tab-btn active" data-tab="ask">Ask</button>
+          <button class="tab-btn" data-tab="task-prompt">Task Prompt</button>
+          <button class="tab-btn" data-tab="review-diff">Review Diff</button>
+          <button class="tab-btn" data-tab="explain-error">Explain Error</button>
+        </nav>
+
+        <!-- Tab 1: Ask -->
+        <div id="pane-ask" class="tab-pane active">
+          <form id="form-ask" onsubmit="handleAsk(event)">
+            <label for="ask-input">Ask anything about the project:</label>
+            <textarea id="ask-input" rows="4" placeholder="e.g. How does document ingestion work in this repository?" required></textarea>
+            <div class="form-actions">
+              <button type="submit" class="primary-btn" id="btn-ask">Submit</button>
+            </div>
+          </form>
+          <div class="response-container hidden" id="res-box-ask">
+            <div class="response-header">
+              <h3>Answer</h3>
+              <button class="copy-btn" onclick="copyContent('res-content-ask')">Copy</button>
+            </div>
+            <pre class="response-content" id="res-content-ask"></pre>
+            <div class="sources-container hidden" id="sources-box-ask">
+              <details>
+                <summary>Consulted Sources (<span id="source-count-ask">0</span>)</summary>
+                <ul class="sources-list" id="sources-list-ask"></ul>
+              </details>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Task Prompt -->
+        <div id="pane-task-prompt" class="tab-pane">
+          <form id="form-task-prompt" onsubmit="handleTaskPrompt(event)">
+            <label for="task-goal-input">Feature Goal or Objective:</label>
+            <textarea id="task-goal-input" rows="4" placeholder="e.g. Add an endpoint to export indexed chunks to JSON" required></textarea>
+            <div class="form-actions">
+              <button type="submit" class="primary-btn" id="btn-task-prompt">Generate Task Prompt</button>
+            </div>
+          </form>
+          <div class="response-container hidden" id="res-box-task-prompt">
+            <div class="response-header">
+              <h3>Generated AI Agent Task</h3>
+              <button class="copy-btn" onclick="copyContent('res-content-task-prompt')">Copy</button>
+            </div>
+            <pre class="response-content" id="res-content-task-prompt"></pre>
+            <div class="sources-container hidden" id="sources-box-task-prompt">
+              <details>
+                <summary>Consulted Sources (<span id="source-count-task-prompt">0</span>)</summary>
+                <ul class="sources-list" id="sources-list-task-prompt"></ul>
+              </details>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Review Diff -->
+        <div id="pane-review-diff" class="tab-pane">
+          <form id="form-review-diff" onsubmit="handleReviewDiff(event)">
+            <label for="diff-task-input">Task / PR Description (Optional):</label>
+            <textarea id="diff-task-input" rows="2" placeholder="Briefly describe what this diff aims to achieve..."></textarea>
+            <label for="diff-input">Git Diff:</label>
+            <textarea id="diff-input" rows="6" placeholder="Paste git diff here..." required></textarea>
+            <div class="form-actions">
+              <button type="submit" class="primary-btn" id="btn-review-diff">Review Diff</button>
+            </div>
+          </form>
+          <div class="response-container hidden" id="res-box-review-diff">
+            <div class="response-header">
+              <h3>Code Review</h3>
+              <button class="copy-btn" onclick="copyContent('res-content-review-diff')">Copy</button>
+            </div>
+            <pre class="response-content" id="res-content-review-diff"></pre>
+            <div class="sources-container hidden" id="sources-box-review-diff">
+              <details>
+                <summary>Consulted Sources (<span id="source-count-review-diff">0</span>)</summary>
+                <ul class="sources-list" id="sources-list-review-diff"></ul>
+              </details>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Explain Error -->
+        <div id="pane-explain-error" class="tab-pane">
+          <form id="form-explain-error" onsubmit="handleExplainError(event)">
+            <label for="error-log-input">Error Log or Stack Trace:</label>
+            <textarea id="error-log-input" rows="6" placeholder="Paste stack trace or error log here..." required></textarea>
+            <label for="error-context-input">Extra Context (Optional):</label>
+            <textarea id="error-context-input" rows="2" placeholder="What were you doing or running when this occurred?"></textarea>
+            <div class="form-actions">
+              <button type="submit" class="primary-btn" id="btn-explain-error">Explain Error</button>
+            </div>
+          </form>
+          <div class="response-container hidden" id="res-box-explain-error">
+            <div class="response-header">
+              <h3>Root Cause & Diagnostic</h3>
+              <button class="copy-btn" onclick="copyContent('res-content-explain-error')">Copy</button>
+            </div>
+            <pre class="response-content" id="res-content-explain-error"></pre>
+            <div class="sources-container hidden" id="sources-box-explain-error">
+              <details>
+                <summary>Consulted Sources (<span id="source-count-explain-error">0</span>)</summary>
+                <ul class="sources-list" id="sources-list-explain-error"></ul>
+              </details>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Knowledge Panel Sidebar -->
+      <aside class="knowledge-panel">
+        <div class="knowledge-header">
+          <h2>Knowledge Base</h2>
+          <button class="secondary-btn btn-sm" onclick="loadKnowledgeFiles()">Refresh</button>
+        </div>
+
+        <div class="upload-box">
+          <label for="file-upload">Upload .md or .txt documents:</label>
+          <input type="file" id="file-upload" multiple accept=".md,.txt">
+          <button type="button" class="primary-btn btn-sm" onclick="uploadFiles()">Upload & Index</button>
+        </div>
+
+        <div class="indexed-files-container">
+          <h3>Indexed Files (<span id="indexed-files-count">0</span>)</h3>
+          <ul id="knowledge-file-list" class="file-list">
+            <li class="file-item-empty">Loading indexed files...</li>
+          </ul>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

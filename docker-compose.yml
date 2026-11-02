@@ -1,0 +1,47 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: vibe-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: vibe-qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vibe-api
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_URL=http://ollama:11434
+      - QDRANT_URL=http://qdrant:6333
+      - CHAT_MODEL=${CHAT_MODEL:-qwen3:8b}
+      - EMBED_MODEL=${EMBED_MODEL:-bge-m3}
+      - TOP_K=${TOP_K:-4}
+      - MAX_CONTEXT_CHARS=${MAX_CONTEXT_CHARS:-12000}
+      - QDRANT_COLLECTION=knowledge_base
+      - KNOWLEDGE_DIR=/workspace/knowledge
+      - PROMPTS_DIR=/workspace/prompts
+    volumes:
+      - ./knowledge:/workspace/knowledge
+      - ./prompts:/workspace/prompts
+    depends_on:
+      - ollama
+      - qdrant
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  qdrant_data:
