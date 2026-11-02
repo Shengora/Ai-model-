@@ -1,0 +1,15 @@
+Service Specification:
+- Port: 8000
+- Protocol: HTTP/1.1
+- Authentication: None (Internal local network only)
+- Endpoints:
+  * GET /health
+  * POST /ask
+  * POST /task-prompt
+  * POST /review-diff
+  * POST /explain-error
+  * POST /ingest/upload
+  * GET /knowledge
+  * DELETE /knowledge/{path}
+- Default context limits: 12000 characters
+- Embeddings dimensionality: 1024 (BGE-M3 standard)
