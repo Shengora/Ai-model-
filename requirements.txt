@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+httpx
+qdrant-client
+pydantic-settings
+python-multipart
+pytest
+pytest-asyncio
+pytest-httpx

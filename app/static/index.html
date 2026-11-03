@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Vibe Coding Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="error-banner" class="hidden"></div>
+    <header>
+        <h1>Local Vibe Coding Assistant</h1>
+        <div id="health-status">Checking services...</div>
+    </header>
+
+    <main>
+        <div class="tabs">
+            <button class="tab-btn active" data-target="ask">Ask</button>
+            <button class="tab-btn" data-target="task">Task Prompt</button>
+            <button class="tab-btn" data-target="review">Review Diff</button>
+            <button class="tab-btn" data-target="explain">Explain Error</button>
+            <button class="tab-btn" data-target="knowledge">Knowledge</button>
+        </div>
+
+        <div id="ask" class="tab-content active">
+            <textarea id="ask-input" placeholder="Ask a question about the project..."></textarea>
+            <button id="ask-submit">Submit</button>
+            <div class="result-area">
+                <button class="copy-btn hidden">Copy</button>
+                <div class="loading hidden">Loading...</div>
+                <div class="answer"></div>
+                <div class="sources-list hidden">
+                    <details>
+                        <summary>Sources</summary>
+                        <ul class="sources"></ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <div id="task" class="tab-content hidden">
+            <textarea id="task-input" placeholder="Describe the goal for the coding agent..."></textarea>
+            <button id="task-submit">Submit</button>
+            <div class="result-area">
+                <button class="copy-btn hidden">Copy</button>
+                <div class="loading hidden">Loading...</div>
+                <div class="answer"></div>
+                <div class="sources-list hidden">
+                    <details>
+                        <summary>Sources</summary>
+                        <ul class="sources"></ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <div id="review" class="tab-content hidden">
+            <textarea id="review-desc" placeholder="Task description (optional)"></textarea>
+            <textarea id="review-diff" placeholder="Paste git diff here..."></textarea>
+            <button id="review-submit">Submit</button>
+            <div class="result-area">
+                <button class="copy-btn hidden">Copy</button>
+                <div class="loading hidden">Loading...</div>
+                <div class="answer"></div>
+                <div class="sources-list hidden">
+                    <details>
+                        <summary>Sources</summary>
+                        <ul class="sources"></ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <div id="explain" class="tab-content hidden">
+            <textarea id="explain-log" placeholder="Paste error log here..."></textarea>
+            <textarea id="explain-context" placeholder="Extra context (optional)"></textarea>
+            <button id="explain-submit">Submit</button>
+            <div class="result-area">
+                <button class="copy-btn hidden">Copy</button>
+                <div class="loading hidden">Loading...</div>
+                <div class="answer"></div>
+                <div class="sources-list hidden">
+                    <details>
+                        <summary>Sources</summary>
+                        <ul class="sources"></ul>
+                    </details>
+                </div>
+            </div>
+        </div>
+
+        <div id="knowledge" class="tab-content hidden">
+            <div class="upload-area">
+                <input type="file" id="file-upload" multiple accept=".md,.txt">
+                <button id="upload-btn">Upload & Ingest</button>
+                <div class="uploading hidden">Uploading...</div>
+            </div>
+            <h3>Indexed Files</h3>
+            <ul id="knowledge-list"></ul>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
