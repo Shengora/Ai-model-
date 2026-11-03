@@ -75,24 +75,28 @@ class QdrantService:
 
     async def delete_by_source_path(self, source_path: str) -> None:
         """Deletes all points associated with a source_path."""
-        collections = await self.client.get_collections()
-        existing = [c.name for c in collections.collections]
-        if self.collection_name not in existing:
-            return
+        try:
+            collections = await self.client.get_collections()
+            existing = [c.name for c in collections.collections]
+            if self.collection_name not in existing:
+                return
 
-        await self.client.delete(
-            collection_name=self.collection_name,
-            points_selector=rest.FilterSelector(
-                filter=rest.Filter(
-                    must=[
-                        rest.FieldCondition(
-                            key="source_path",
-                            match=rest.MatchValue(value=source_path),
-                        )
-                    ]
-                )
-            ),
-        )
+            await self.client.delete(
+                collection_name=self.collection_name,
+                points_selector=rest.FilterSelector(
+                    filter=rest.Filter(
+                        must=[
+                            rest.FieldCondition(
+                                key="source_path",
+                                match=rest.MatchValue(value=source_path),
+                            )
+                        ]
+                    )
+                ),
+            )
+        except Exception:
+            # When Qdrant is unavailable, safely ignore vector deletion
+            pass
 
     async def search(
         self,
